@@ -153,7 +153,8 @@ class Customer {
       
       int get_customer_points();
       void increment_customer_points(int value);
-     
+      
+      void OutputRepeats();  
       void ReadTransactions();
       void ReportAllTransactions();
       void ReportRewardSummary(); 
@@ -171,6 +172,10 @@ int main() {
    Customer * p_customer = new Customer("Lisa Kudrow", "3212123456781234");
    p_customer->ReadTransactions();
    p_customer->ReportAllTransactions();
+   p_customer->ReportRewardSummary();
+   //overloader test
+   p_customer->OutputRepeats(); 
+   delete p_customer;
    return 1;
 }
 
@@ -216,6 +221,9 @@ string Transaction::get_transaction_type() const {
    return t_type_;
 } 
 
+bool Transaction::operator==(const Transaction & transaction_to_compare) const {
+   return (get_transaction_date() == transaction_to_compare.get_transaction_date() && get_transaction_id() == transaction_to_compare.get_transaction_id());
+}
 
 //DepartmentStore derived class
 DepartmentStoreTransaction::DepartmentStoreTransaction() : Transaction(), department_name_(""), return_policy_(0) {}
@@ -393,7 +401,9 @@ Customer::Customer(string name, string ccnumber) : customer_name_(name), credit_
 
 Customer::~Customer(){
    for (int i = 0; i < g_tSize;i++) {
-      delete p_transaction[i];
+      if (p_transaction[i] != NULL) {
+         delete p_transaction[i];
+      }
    }
 }
 
@@ -524,7 +534,7 @@ void Customer::ReportAllTransactions() {
 void Customer::ReportRewardSummary() {
    DepartmentStoreTransaction transaction = DepartmentStoreTransaction();
    GroceryTransaction gtransaction =  GroceryTransaction();
-   cout << "Rewards Summary for " << get_customer_name() << setw(5) << get_customer_cnumber() << endl;
+   cout << "Rewards Summary for " << get_customer_name() << setw(20) << get_customer_cnumber() << endl;
    cout << setw(10) << "Previous points balance " << setw(20) << get_customer_points() << endl;
    cout << setw(10) << " + Department Store Purchaches: " << transaction.EarnPoints() << endl; 
    cout << setw(10) << " + Grocery Purchases: " << gtransaction.EarnPoints() << endl;
@@ -533,4 +543,15 @@ void Customer::ReportRewardSummary() {
    cout << get_customer_points() + gtransaction.EarnPoints() + transaction.EarnPoints() << endl;
 }
 
-//extra?
+void Customer::OutputRepeats() {
+   for (int i = 0;i < g_tSize;i++) {
+      for (int j = i+1; j < g_tSize;j++) {
+         if (p_transaction[i] == p_transaction[j]) {
+            cout << p_transaction[i]->get_transaction_date() << " " << p_transaction[i]->get_transaction_id() << endl;
+            cout << "Repeat" << endl;
+            cout << p_transaction[j]->get_transaction_date() << " " << p_transaction[j]->get_transaction_id() << endl;
+         }
+      }
+   }
+}
+
