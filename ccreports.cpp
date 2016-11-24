@@ -21,7 +21,7 @@ class Transaction {
    public:
       Transaction();
       Transaction(string t_date, int t_id, double t_amount,string t_type);
-      bool operator==(const Transaction & transaction_to_compare) const;
+      virtual bool operator==(const Transaction & transaction_to_compare) const;
       virtual ~Transaction();
 
       //getters/setters
