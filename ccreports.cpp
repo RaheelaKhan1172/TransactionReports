@@ -21,7 +21,7 @@ class Transaction {
    public:
       Transaction();
       Transaction(string t_date, int t_id, double t_amount,string t_type);
-      virtual bool operator==(const Transaction & transaction_to_compare) const;
+      virtual bool operator==(const Transaction & other) const;
       virtual ~Transaction();
 
       //getters/setters
@@ -54,6 +54,7 @@ class DepartmentStoreTransaction : public Transaction {
       DepartmentStoreTransaction(string name, int policy, string t_date, int t_id, double t_amount,string t_type);
       virtual ~DepartmentStoreTransaction();
       
+      virtual bool operator==(const Transaction & other) const;      
       //getters/setters
       string get_department_name() const;
       void set_department_name(string name);
@@ -85,7 +86,9 @@ class BankingTransaction : public Transaction {
       BankingTransaction();
       BankingTransaction(string type, double fee, string t_date, int t_id, double t_amount,string t_type);
       virtual ~BankingTransaction();
-   
+  
+      virtual bool operator==(const Transaction & other) const;
+ 
       string get_type() const;
       void set_type(string type);
 
@@ -115,6 +118,8 @@ class GroceryTransaction : public Transaction {
       GroceryTransaction();
       GroceryTransaction(string name, string t_date, int t_id, double t_amount,string t_type);
       virtual ~GroceryTransaction();
+
+      virtual bool operator==(const Transaction & other) const;      
 
       string get_store_name() const;
       void set_store_name(string name);
@@ -221,8 +226,9 @@ string Transaction::get_transaction_type() const {
    return t_type_;
 } 
 
-bool Transaction::operator==(const Transaction & transaction_to_compare) const {
-   return (get_transaction_date() == transaction_to_compare.get_transaction_date() && get_transaction_id() == transaction_to_compare.get_transaction_id());
+bool Transaction::operator==(const Transaction & other) const {
+   cout << "Hit" << endl;
+   return (get_transaction_date() == other.get_transaction_date() && get_transaction_id() == other.get_transaction_id());
 }
 
 //DepartmentStore derived class
@@ -282,6 +288,13 @@ int DepartmentStoreTransaction::EarnPoints() {
 void DepartmentStoreTransaction::DisplaySummary()const  {
  //not sure if i'm keeping this method
    cout << get_transaction_type() << setw(20) << get_total_count() << setw(20) << get_total_amount() << endl;
+}
+
+bool DepartmentStoreTransaction::operator==(const Transaction & other) const {
+   cout << "dt" << endl;
+   const DepartmentStoreTransaction * other_transaction = dynamic_cast< const DepartmentStoreTransaction *> ( &other );
+   return (other_transaction && Transaction::operator==( other ) 
+          && (get_transaction_date() == other_transaction->get_transaction_date() && get_transaction_id() == other_transaction->get_transaction_id()));
 }
 
 //bank
@@ -348,6 +361,13 @@ void BankingTransaction::DisplaySummary() const {
    cout << get_transaction_type() << setw(20) << get_total_count() << setw(20) << get_total_amount() << endl;
 }
 
+bool BankingTransaction::operator==(const Transaction & other) const {
+   cout << "bt" << endl;
+   const BankingTransaction * other_transaction = dynamic_cast< const BankingTransaction *> ( &other );
+   return (other_transaction && Transaction::operator==( other ) 
+          && (get_transaction_date() == other_transaction->get_transaction_date() && get_transaction_id() == other_transaction->get_transaction_id()));
+}
+
 //grocery
 GroceryTransaction::GroceryTransaction() : Transaction(), store_name_("") {}
 GroceryTransaction::GroceryTransaction(string name,string t_date, int t_id, double t_amount,string t_type) : 
@@ -393,6 +413,13 @@ int GroceryTransaction::EarnPoints() {
 
 void GroceryTransaction::DisplaySummary() const {
    cout << get_transaction_type() << setw(20) << get_total_count() << setw(20) << get_total_amount() << endl;
+}
+
+bool GroceryTransaction::operator==(const Transaction & other) const {
+   cout << "gm" << endl;
+   const GroceryTransaction * other_transaction = dynamic_cast< const GroceryTransaction *> ( &other );
+   return (other_transaction && Transaction::operator==( other ) 
+          && (get_transaction_date() == other_transaction->get_transaction_date() && get_transaction_id() == other_transaction->get_transaction_id()));
 }
 
 //Customer
@@ -544,13 +571,29 @@ void Customer::ReportRewardSummary() {
 }
 
 void Customer::OutputRepeats() {
+   cout << "HI" << endl;
+   BankingTransaction * p_bank = NULL;
+   GroceryTransaction * p_g = NULL;
+   DepartmentStoreTransaction * p_d_s_t = NULL;
+   
+   BankingTransaction * p_bank1 = NULL;
+   GroceryTransaction * p_g2 = NULL;
+   DepartmentStoreTransaction * p_d_s_t3 = NULL;
    for (int i = 0;i < g_tSize;i++) {
+      p_bank = dynamic_cast<BankingTransaction * >(p_transaction[i]);
+      p_g = dynamic_cast<GroceryTransaction *>(p_transaction[i]);
+      p_d_s_t = dynamic_cast<DepartmentStoreTransaction * >(p_transaction[i]);
       for (int j = i+1; j < g_tSize;j++) {
-         if (p_transaction[i] == p_transaction[j]) {
+         p_bank1 = dynamic_cast<BankingTransaction * > (p_transaction[j]);
+         p_g2 = dynamic_cast<GroceryTransaction *>(p_transaction[j]);
+         p_d_s_t3 = dynamic_cast<DepartmentStoreTransaction *>(p_transaction[j]);
+         if ((p_bank && p_bank1 && p_bank == p_bank1) || (p_g && p_g2 && p_g == p_g2) || (p_d_s_t && p_d_s_t3 && p_d_s_t == p_d_s_t3)) {
+            cout << " _________" << endl;
             cout << p_transaction[i]->get_transaction_date() << " " << p_transaction[i]->get_transaction_id() << endl;
             cout << "Repeat" << endl;
             cout << p_transaction[j]->get_transaction_date() << " " << p_transaction[j]->get_transaction_id() << endl;
-         }
+            cout << " ________ " << endl;
+         } 
       }
    }
 }
